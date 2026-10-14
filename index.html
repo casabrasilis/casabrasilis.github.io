@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adiantamentos · Casa Brasilis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');}</script>
+<style>
+:root{
+  --verde:#1E3A2B; --verde-2:#2A4E3A; --ouro:#C6A24A; --ouro-claro:#EADBB0;
+  --fundo:#F2F3EF; --papel:#FFFFFF; --tinta:#1B2420; --suave:#5E6B64; --linha:#DADFD8;
+  --ok:#2F7A4F; --ok-bg:#E3F1E8; --atencao:#9A6A00; --atencao-bg:#FBF0D3;
+  --atraso:#A4382B; --atraso-bg:#F8E1DD; --diverg:#6B3FA0; --diverg-bg:#EDE4F7;
+  --neutro:#55605A; --neutro-bg:#E8EBE7; --azul:#2C5E8A; --azul-bg:#E1ECF6;
+  --raio:8px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--fundo);color:var(--tinta);font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ouro);outline-offset:2px}
+.hidden{display:none!important}
+
+/* login */
+#login{min-height:100%;display:grid;place-items:center;background:var(--verde);padding:16px}
+.login-box{background:var(--papel);border-radius:12px;padding:32px;width:100%;max-width:380px}
+.marca{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.selo{width:44px;height:44px;border-radius:50%;background:var(--verde);border:2px solid var(--ouro);display:grid;place-items:center;color:var(--ouro);font-weight:700;font-size:15px;flex:none}
+.marca b{display:block;font-size:16px}
+.marca span{color:var(--suave);font-size:13px}
+
+/* layout */
+#app{display:grid;grid-template-columns:220px 1fr;min-height:100%}
+aside{background:var(--verde);color:#E8EDE9;padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+aside .marca{margin:0 6px 22px}
+aside .marca b{color:#fff}
+aside .marca span{color:var(--ouro-claro)}
+.nav{display:flex;align-items:center;justify-content:space-between;background:none;border:0;color:#D5DED8;padding:9px 12px;border-radius:6px;cursor:pointer;text-align:left}
+.nav:hover{background:var(--verde-2)}
+.nav.ativo{background:var(--verde-2);color:#fff;box-shadow:inset 3px 0 0 var(--ouro)}
+.nav .cont{background:var(--ouro);color:var(--verde);font-size:12px;font-weight:600;border-radius:10px;padding:0 7px}
+aside .rodape{margin-top:auto;font-size:13px;color:#B7C4BC;padding:0 6px}
+aside .rodape b{color:#fff;display:block}
+aside .rodape button{background:none;border:0;color:var(--ouro-claro);padding:0;cursor:pointer;margin-top:4px}
+main{padding:24px 28px 60px;min-width:0}
+.topo{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.topo h1{font-size:22px;margin:0;font-weight:600;margin-right:auto}
+.unidades{display:flex;background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);padding:3px}
+.unidades button{border:0;background:none;padding:6px 12px;border-radius:6px;cursor:pointer;color:var(--suave)}
+.unidades button.ativo{background:var(--verde);color:#fff}
+
+/* botões */
+.btn{border:1px solid var(--linha);background:var(--papel);padding:8px 14px;border-radius:var(--raio);cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--suave)}
+.btn.pri{background:var(--verde);border-color:var(--verde);color:#fff}
+.btn.pri:hover{background:var(--verde-2)}
+.btn.ouro{background:var(--ouro);border-color:var(--ouro);color:var(--verde)}
+.btn.perigo{color:var(--atraso);border-color:#E4B9B2}
+.btn.mini{padding:4px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* indicadores */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:24px}
+.kpi{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);padding:14px 16px;cursor:pointer;text-align:left}
+.kpi:hover{border-color:var(--suave)}
+.kpi .v{font-size:22px;font-weight:600;display:block}
+.kpi .l{color:var(--suave);font-size:13px}
+.kpi.destaque{background:var(--verde);border-color:var(--verde);color:#fff}
+.kpi.destaque .l{color:var(--ouro-claro)}
+h2{font-size:16px;margin:0 0 10px;font-weight:600}
+
+/* tabela */
+.quadro{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);overflow:auto}
+table{width:100%;border-collapse:collapse}
+th{font-weight:500;color:var(--suave);font-size:13px;text-align:left;padding:10px 12px;border-bottom:1px solid var(--linha);white-space:nowrap;background:#FAFBF9}
+td{padding:10px 12px;border-bottom:1px solid #ECEFEB;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr.clic{cursor:pointer}
+tbody tr.clic:hover{background:#F7F9F6}
+.num{text-align:right;white-space:nowrap}
+.sub{color:var(--suave);font-size:12.5px}
+.vazio{padding:28px;text-align:center;color:var(--suave)}
+
+/* régua de saldo: pago dividido em vinculado | devolvido | saldo */
+.regua{display:flex;height:6px;border-radius:3px;overflow:hidden;background:#E9ECE8;min-width:90px;margin-top:5px}
+.regua i{display:block;height:100%}
+.regua .rv{background:var(--ok)} .regua .rd{background:var(--azul)} .regua .rs{background:var(--ouro)}
+.regua.grande{height:12px;border-radius:6px;margin:10px 0 6px}
+.legenda{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--suave)}
+.legenda span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:0}
+.legenda .lv::before{background:var(--ok)} .legenda .ld::before{background:var(--azul)} .legenda .ls::before{background:var(--ouro)}
+
+/* selos de status (texto sempre presente) */
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;padding:2px 9px;border-radius:12px;white-space:nowrap}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.t-ok{color:var(--ok);background:var(--ok-bg)}
+.t-atencao{color:var(--atencao);background:var(--atencao-bg)}
+.t-atraso{color:var(--atraso);background:var(--atraso-bg)}
+.t-diverg{color:var(--diverg);background:var(--diverg-bg)}
+.t-neutro{color:var(--neutro);background:var(--neutro-bg)}
+.t-azul{color:var(--azul);background:var(--azul-bg)}
+
+/* filtros */
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.filtros input,.filtros select{padding:7px 10px;border:1px solid var(--linha);border-radius:var(--raio);background:var(--papel)}
+.filtros input[type=search]{min-width:240px;flex:1;max-width:360px}
+.filtros .grupo{display:flex;align-items:center;gap:6px;color:var(--suave);font-size:13px}
+.filtros .grupo input{width:140px}
+.filtros .grupo input.v{width:100px}
+.filtros .acoes-lista{margin-left:auto;display:flex;gap:8px}
+.lembrete{display:flex;align-items:center;gap:12px;justify-content:space-between;background:var(--papel);border:1px solid var(--ouro);border-left:4px solid var(--ouro);border-radius:var(--raio);padding:10px 14px;margin-bottom:18px;flex-wrap:wrap}
+aside .rodape .bk{display:block;margin-top:10px;color:var(--ouro)}
+
+/* painel lateral (detalhe) */
+.veu{position:fixed;inset:0;background:rgba(20,32,26,.35);z-index:20}
+.gaveta{position:fixed;top:0;right:0;bottom:0;width:min(720px,100%);background:var(--fundo);z-index:21;overflow:auto;box-shadow:-8px 0 30px rgba(20,32,26,.18);animation:entra .18s ease-out}
+@keyframes entra{from{transform:translateX(30px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.gaveta{animation:none}}
+.gaveta header{background:var(--papel);padding:18px 22px;border-bottom:1px solid var(--linha);position:sticky;top:0;z-index:2}
+.gaveta header .lin{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gaveta header h3{margin:0;font-size:19px;font-weight:600;margin-right:auto}
+.fechar{border:0;background:none;font-size:22px;cursor:pointer;color:var(--suave);line-height:1;padding:4px 8px}
+.gaveta section{padding:16px 22px}
+.bloco{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);padding:16px;margin-bottom:14px}
+.valores{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.valores div span{display:block;color:var(--suave);font-size:12.5px}
+.valores div b{font-size:17px;font-weight:600}
+.dados{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;font-size:13.5px}
+.dados dt{color:var(--suave)} .dados dd{margin:0;word-break:break-word}
+.acoes{display:flex;gap:8px;flex-wrap:wrap}
+.riscado td{color:#9AA39E;text-decoration:line-through}
+.riscado td.motivo{text-decoration:none}
+.aviso{background:var(--atencao-bg);color:#6E4C00;border-radius:var(--raio);padding:10px 12px;font-size:13.5px;margin-bottom:12px}
+.aviso.roxo{background:var(--diverg-bg);color:#4C2B75}
+.hist{list-style:none;margin:0;padding:0;font-size:13.5px}
+.hist li{padding:8px 0;border-bottom:1px solid #ECEFEB;display:grid;grid-template-columns:125px 1fr;gap:10px}
+.hist li:last-child{border:0}
+.hist .det{margin:4px 0 0;padding:0;list-style:none;font-size:13px}
+.hist .det li{display:block;border:0;padding:1px 0;color:var(--suave)}
+.hist .det b{color:var(--tinta);font-weight:500}
+.hist .antes{text-decoration:line-through;color:#9AA39E}
+.hist .quem{font-weight:600;color:var(--verde)}
+.autoria{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--suave);margin-top:6px}
+.autoria b{color:var(--tinta);font-weight:500}
+.hist time{color:var(--suave);font-size:12.5px}
+
+/* modal */
+dialog{border:0;border-radius:12px;padding:0;width:min(560px,calc(100% - 24px));box-shadow:0 20px 50px rgba(20,32,26,.3)}
+dialog::backdrop{background:rgba(20,32,26,.45)}
+dialog form{padding:22px}
+dialog h3{margin:0 0 4px;font-size:18px;font-weight:600}
+dialog .desc{color:var(--suave);margin:0 0 16px;font-size:13.5px}
+.campos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.campos .inteiro{grid-column:1/-1}
+label.c{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--suave)}
+label.c input,label.c select,label.c textarea{padding:8px 10px;border:1px solid var(--linha);border-radius:6px;background:#fff;color:var(--tinta);font-size:14px}
+label.c textarea{min-height:64px;resize:vertical}
+label.c .ob{color:var(--atraso)}
+.rodape-modal{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.lista-escolha{max-height:260px;overflow:auto;border:1px solid var(--linha);border-radius:6px;margin:8px 0}
+.lista-escolha label{display:grid;grid-template-columns:20px 1fr auto;gap:8px;padding:9px 10px;border-bottom:1px solid #ECEFEB;cursor:pointer;align-items:center}
+.lista-escolha label:hover{background:#F7F9F6}
+.lista-escolha label:last-child{border:0}
+.grupo-escolha{font-size:12.5px;color:var(--suave);padding:6px 10px;background:#FAFBF9;border-bottom:1px solid #ECEFEB}
+
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:11px 18px;border-radius:8px;z-index:50;max-width:min(560px,calc(100% - 32px));font-size:14px}
+#toast.erro{background:var(--atraso)}
+
+@media (max-width:820px){
+  #app{grid-template-columns:1fr}
+  aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px 12px}
+  aside .marca{margin:0 auto 0 0}
+  aside .rodape{margin:0;width:100%;display:flex;gap:10px;align-items:center}
+  main{padding:16px}
+  .campos{grid-template-columns:1fr}
+  .dados{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="hidden">
+  <form class="login-box" id="formLogin">
+    <div class="marca"><div class="selo">CB</div><div><b>Casa Brasilis</b><span>Controle de adiantamentos</span></div></div>
+    <div class="campos" style="grid-template-columns:1fr">
+      <label class="c">E-mail<input type="email" name="email" required autocomplete="username"></label>
+      <label class="c">Senha<input type="password" name="senha" required autocomplete="current-password"></label>
+    </div>
+    <p id="loginMsg" class="sub" style="min-height:20px;margin:12px 0"></p>
+    <button class="btn pri" style="width:100%">Entrar</button>
+  </form>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <aside>
+    <div class="marca"><div class="selo">CB</div><div><b>Casa Brasilis</b><span>Adiantamentos</span></div></div>
+    <button class="nav" data-tela="painel">Painel</button>
+    <button class="nav" data-tela="adiant">Adiantamentos <span class="cont" id="contAberto"></span></button>
+    <button class="nav" data-tela="notas">Notas fiscais <span class="cont" id="contNotas"></span></button>
+    <button class="nav hidden" data-tela="usuarios" id="navUsuarios">Usuários</button>
+    <div class="rodape"><b id="nomeUsuario"></b><span id="papelUsuario"></span><br><button id="trocarSenha">Trocar senha</button> · <button id="sair">Sair</button><button id="btnBackup" class="bk hidden">Baixar backup completo</button></div>
+  </aside>
+  <main>
+    <div class="topo">
+      <h1 id="titulo">Painel</h1>
+      <div class="unidades" id="filtroUnidade"></div>
+      <button class="btn pri so-gravar" id="btnNovoAd">Novo adiantamento</button>
+    </div>
+    <div id="tela"></div>
+  </main>
+</div>
+
+<div id="gaveta"></div>
+<dialog id="modal"></dialog>
+<div id="toast" class="hidden"></div>
+
+<script>
+/* ================= Configuração ================= */
+const SUPABASE_URL = 'https://qnanesnsaexocadpxazg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_9bPL1d1c3vnfd8AEUPMLBA_5nlV0VGo';
+function falhaGeral(msg){
+  document.body.innerHTML = `<div style="min-height:100vh;display:grid;place-items:center;background:#1E3A2B;padding:16px;font-family:system-ui,sans-serif">
+    <div style="background:#fff;border-radius:12px;padding:28px;max-width:440px"><h2 style="margin:0 0 8px;font-size:18px">O app não conseguiu abrir</h2>
+    <p style="margin:0 0 16px;color:#5E6B64">${msg}</p><button onclick="location.reload()" style="padding:8px 16px;border-radius:8px;border:0;background:#1E3A2B;color:#fff;cursor:pointer">Tentar de novo</button></div></div>`;
+}
+window.addEventListener('error', e => { if (!document.getElementById('app')) return; toast('Erro na tela: ' + e.message, true); });
+const sb = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+const FORMAS = ['Pix','TED/DOC','Boleto','Dinheiro','Cartão','Outro'];
+const S = { perfil:null, unidade:0, tela:'painel', unidades:[], fornecedores:[], ads:[], nfs:[], cfg:null,
+            filtroAd:{texto:'',status:'',alerta:''}, filtroNf:{texto:'',status:''} };
+
+/* ================= Utilidades ================= */
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const dt = d => d ? d.slice(0,10).split('-').reverse().join('/') : '—';
+const dth = d => d ? new Date(d).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+const hoje = () => { const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+function parseValor(s){
+  if (typeof s==='number') return s;
+  s = String(s||'').replace(/[R$\s]/g,'');
+  if (s.includes(',')) s = s.replace(/\./g,'').replace(',','.');
+  const n = Number(s); return isFinite(n) ? Math.round(n*100)/100 : NaN;
+}
+const fmtInput = v => Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const soDig = s => String(s||'').replace(/\D/g,'');
+const fmtCnpj = c => { c=soDig(c); return c.length===14 ? c.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5') : c; };
+const eCoord = () => S.perfil?.papel==='coordenador';
+const podeGravar = () => ['coordenador','operador'].includes(S.perfil?.papel);
+
+function toast(msg, erro=false){
+  const t=$('#toast'); t.textContent=msg; t.className=erro?'erro':''; clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.add('hidden'), erro?7000:3500);
+}
+function erroMsg(e){
+  const m = e?.message || String(e);
+  if (m.includes('nf_numero_uk')) return 'Essa NF já está cadastrada para este fornecedor (mesmo número e série).';
+  if (m.includes('nf_chave_uk')) return 'Já existe uma NF com essa chave de acesso.';
+  if (m.includes('fornecedores_cnpj_uk')) return 'Já existe fornecedor com esse CNPJ.';
+  if (m.includes('motivo') || m.includes('check constraint')) return 'Informe uma justificativa (mínimo de 5 caracteres).';
+  if (m.includes('row-level security')) return 'Seu perfil não tem permissão para essa ação.';
+  return m.replace(/(\d+)\.(\d{2})\)/g,(x,a,b)=>Number(a).toLocaleString('pt-BR')+','+b+')');
+}
+async function exec(promessa, okMsg){
+  const { data, error } = await promessa;
+  if (error){ toast(erroMsg(error), true); throw error; }
+  if (okMsg) toast(okMsg);
+  return data;
+}
+
+/* classes de status */
+function tagStatus(s){
+  const m = {'Regularizado':'t-ok','Devolvido':'t-ok','Encerrado com justificativa':'t-ok','Totalmente vinculada':'t-ok',
+    'Sem NF':'t-atencao','Parcialmente regularizado':'t-azul','Conferência manual':'t-diverg','Cancelado':'t-neutro',
+    'Não vinculada':'t-atencao','Parcialmente vinculada':'t-azul','Sem adiantamento':'t-neutro','Saldo justificado':'t-ok','Cancelada':'t-neutro'};
+  return `<span class="tag ${m[s]||'t-neutro'}">${esc(s)}</span>`;
+}
+function tagAlerta(a){
+  const m = {'Pendente recente':'t-neutro','Atenção':'t-atencao','Atrasado':'t-atraso','Divergência':'t-diverg','Regularizado':'t-ok','Cancelado':'t-neutro'};
+  return `<span class="tag ${m[a]||'t-neutro'}">${esc(a)}</span>`;
+}
+function regua(a, grande=false){
+  const t = Number(a.valor)||1;
+  const pv = Number(a.valor_vinculado)/t*100, pd = Number(a.valor_devolvido)/t*100;
+  const ps = a.em_aberto ? Math.max(0,Number(a.saldo))/t*100 : 0;
+  return `<div class="regua ${grande?'grande':''}" role="img" aria-label="Vinculado ${brl(a.valor_vinculado)}, devolvido ${brl(a.valor_devolvido)}, saldo ${brl(a.saldo)}"><i class="rv" style="width:${pv}%"></i><i class="rd" style="width:${pd}%"></i><i class="rs" style="width:${ps}%"></i></div>`;
+}
+
+/* ================= Autenticação ================= */
+async function iniciar(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) return mostrarLogin();
+  const papel = await sb.rpc('meu_papel');
+  if (!papel.data){
+    mostrarLogin('Seu acesso ainda não foi liberado pelo coordenador. Peça a liberação e entre novamente.');
+    await sb.auth.signOut(); return;
+  }
+  const { data:perfil } = await sb.from('perfis').select('*').eq('user_id', session.user.id).single();
+  S.perfil = perfil;
+  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+  $('#nomeUsuario').textContent = perfil.nome;
+  $('#papelUsuario').textContent = {coordenador:'Coordenador',operador:'Operador',leitura:'Somente leitura'}[perfil.papel];
+  document.querySelectorAll('.so-gravar').forEach(b=>b.classList.toggle('hidden', !podeGravar()));
+  $('#navUsuarios').classList.toggle('hidden', !eCoord());
+  $('#btnBackup').classList.toggle('hidden', !eCoord());
+  await carregar();
+  if (!perfil.senha_definida) trocarSenha(true);
+}
+function mostrarLogin(msg=''){
+  $('#app').classList.add('hidden'); $('#login').classList.remove('hidden');
+  $('#loginMsg').textContent = msg;
+}
+$('#formLogin').onsubmit = async e=>{
+  e.preventDefault(); const f=new FormData(e.target);
+  $('#loginMsg').textContent='Entrando…';
+  const { error } = await sb.auth.signInWithPassword({ email:f.get('email').trim(), password:f.get('senha') });
+  if (error){ $('#loginMsg').textContent = error.message.includes('Invalid') ? 'E-mail ou senha incorretos.' : error.message; return; }
+  iniciar();
+};
+$('#sair').onclick = async ()=>{ await sb.auth.signOut(); location.reload(); };
+
+/* ================= Dados ================= */
+async function carregar(){
+  const [u,f,a,n,c] = await Promise.all([
+    sb.from('unidades').select('*').order('id'),
+    sb.from('fornecedores').select('*').order('nome'),
+    sb.from('vw_adiantamentos').select('*').order('data_pagamento',{ascending:true}),
+    sb.from('vw_notas').select('*').order('data_recebimento',{ascending:false}),
+    sb.from('configuracoes').select('*').single()
+  ]);
+  for (const r of [u,f,a,n,c]) if (r.error){ toast(erroMsg(r.error),true); return; }
+  S.unidades=u.data; S.fornecedores=f.data; S.ads=a.data; S.nfs=n.data; S.cfg=c.data;
+  desenharUnidades(); desenhar();
+}
+const porUnidade = arr => S.unidade ? arr.filter(x=>x.unidade_id===S.unidade) : arr;
+
+function desenharUnidades(){
+  const el=$('#filtroUnidade');
+  el.innerHTML = [{id:0,nome:'Todas'},...S.unidades].map(u=>`<button data-u="${u.id}" class="${S.unidade===u.id?'ativo':''}">${esc(u.nome)}</button>`).join('');
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.unidade=Number(b.dataset.u); desenharUnidades(); desenhar();});
+}
+document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{S.tela=b.dataset.tela; desenhar();});
+
+function desenhar(){
+  document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('ativo', b.dataset.tela===S.tela));
+  const abertos = porUnidade(S.ads).filter(a=>a.em_aberto).length;
+  const nfsPend = porUnidade(S.nfs).filter(n=>n.status==='Não vinculada').length;
+  $('#contAberto').textContent = abertos || ''; $('#contAberto').classList.toggle('hidden',!abertos);
+  $('#contNotas').textContent = nfsPend || ''; $('#contNotas').classList.toggle('hidden',!nfsPend);
+  ({painel:telaPainel, adiant:telaAdiantamentos, notas:telaNotas, usuarios:telaUsuarios})[S.tela]();
+}
+
+/* ================= Painel ================= */
+function telaPainel(){
+  $('#titulo').textContent='Painel';
+  const ads = porUnidade(S.ads), nfs = porUnidade(S.nfs);
+  const abertos = ads.filter(a=>a.em_aberto);
+  const pendente = abertos.reduce((s,a)=>s+Number(a.saldo),0);
+  const semNf = ads.filter(a=>a.status==='Sem NF').length;
+  const parciais = ads.filter(a=>a.status==='Parcialmente regularizado').length;
+  const diverg = ads.filter(a=>a.divergencia || a.status==='Conferência manual').length;
+  const nfsSoltas = nfs.filter(n=>n.status==='Não vinculada').length;
+  const mes = hoje().slice(0,7);
+  const regMes = ads.filter(a=>a.regularizado_em && a.regularizado_em.slice(0,7)===mes).reduce((s,a)=>s+Number(a.valor),0);
+  const precisa = ads.filter(a=>a.em_aberto || a.divergencia)
+     .sort((x,y)=>(y.divergencia-x.divergencia) || (y.dias_desde_pagamento-x.dias_desde_pagamento));
+  $('#tela').innerHTML = `
+   <div class="kpis">
+     <button class="kpi destaque" data-ir="adiant" data-st="aberto"><span class="v">${brl(pendente)}</span><span class="l">Pago e ainda sem documentação (${abertos.length})</span></button>
+     <button class="kpi" data-ir="adiant" data-st="Sem NF"><span class="v">${semNf}</span><span class="l">Adiantamentos sem NF</span></button>
+     <button class="kpi" data-ir="adiant" data-st="Parcialmente regularizado"><span class="v">${parciais}</span><span class="l">Parcialmente regularizados</span></button>
+     <button class="kpi" data-ir="adiant" data-al="Divergência"><span class="v">${diverg}</span><span class="l">Divergências e conferências</span></button>
+     <button class="kpi" data-ir="adiant" data-st="fechado"><span class="v">${brl(regMes)}</span><span class="l">Regularizado neste mês</span></button>
+   </div>
+   ${lembreteBackup()}
+   <h2>Precisa de atenção</h2>
+   ${tabelaAds(precisa, 'Nenhuma pendência. Todos os adiantamentos estão documentados.')}`;
+  $('#lbBackup')?.addEventListener('click', baixarBackup);
+  $('#tela').querySelectorAll('[data-ir]').forEach(b=>b.onclick=()=>{
+    if (b.dataset.ir==='adiant'){ S.filtroAd={texto:'',status:b.dataset.st||'',alerta:b.dataset.al||''}; }
+    else { S.filtroNf={texto:'',status:b.dataset.st||''}; }
+    S.tela=b.dataset.ir; desenhar();
+  });
+  ligarLinhas();
+}
+
+/* ================= Adiantamentos ================= */
+function tabelaAds(lista, vazio){
+  if (!lista.length) return `<div class="quadro"><div class="vazio">${vazio}</div></div>`;
+  return `<div class="quadro"><table><thead><tr>
+    <th>Código</th><th>Fornecedor</th><th>Pagamento</th><th class="num">Pago</th><th class="num">Saldo</th><th>NFs vinculadas</th><th>Status</th><th>Alerta</th><th></th></tr></thead><tbody>
+    ${lista.map(a=>`<tr class="clic" data-ad="${a.id}">
+      <td><b>${esc(a.codigo)}</b><div class="sub">${esc(a.unidade_nome)}${a.responsavel_nome?' · lançado por '+esc(a.responsavel_nome):''}</div></td>
+      <td>${esc(a.fornecedor_nome)}${a.descricao?`<div class="sub">${esc(a.descricao)}</div>`:''}</td>
+      <td>${dt(a.data_pagamento)}<div class="sub">${a.dias_desde_pagamento} dia${a.dias_desde_pagamento===1?'':'s'}</div></td>
+      <td class="num">${brl(a.valor)}${regua(a)}</td>
+      <td class="num"><b>${brl(a.saldo)}</b></td>
+      <td class="sub">${esc(a.notas_vinculadas||'—')}</td>
+      <td>${tagStatus(a.status)}</td>
+      <td>${tagAlerta(a.alerta)}</td>
+      <td class="num">${podeGravar()&&['ativo','conferencia'].includes(a.situacao)&&Number(a.saldo)>0?`<button class="btn mini ouro" data-baixa="${a.id}">Dar baixa</button>`:''}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function ligarLinhas(){
+  $('#tela').querySelectorAll('[data-baixa]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); darBaixa(S.ads.find(a=>a.id===Number(b.dataset.baixa))); });
+  $('#tela').querySelectorAll('[data-ad]').forEach(r=>r.onclick=()=>abrirAdiantamento(Number(r.dataset.ad)));
+  $('#tela').querySelectorAll('[data-nf]').forEach(r=>r.onclick=()=>abrirNota(Number(r.dataset.nf)));
+}
+function telaAdiantamentos(){
+  $('#titulo').textContent='Adiantamentos';
+  const f=S.filtroAd;
+  const sts=['Sem NF','Parcialmente regularizado','Conferência manual','Regularizado','Encerrado com justificativa','Devolvido','Cancelado'];
+  const als=['Pendente recente','Atenção','Atrasado','Divergência','Regularizado'];
+  $('#tela').innerHTML = `
+   <div class="filtros">
+     <input type="search" id="fTexto" placeholder="Buscar por código, fornecedor, NF ou descrição" value="${esc(f.texto)}">
+     <select id="fStatus"><option value="">Todos os status</option>
+       <option value="aberto">Em aberto</option><option value="fechado">Regularizados e encerrados</option>
+       ${sts.map(s=>`<option ${f.status===s?'selected':''}>${s}</option>`).join('')}</select>
+     <select id="fAlerta"><option value="">Todos os alertas</option>${als.map(s=>`<option ${f.alerta===s?'selected':''}>${s}</option>`).join('')}</select>
+   </div>
+   <div class="filtros">
+     <span class="grupo">Pagamento de <input type="date" id="fDe" value="${f.de||''}"> até <input type="date" id="fAte" value="${f.ate||''}"></span>
+     <span class="grupo">Valor de <input class="v" id="fMin" inputmode="decimal" placeholder="0,00" value="${f.min||''}"> até <input class="v" id="fMax" inputmode="decimal" placeholder="0,00" value="${f.max||''}"></span>
+     <span class="acoes-lista"><button class="btn" id="btnExpAd">Exportar lista</button><button class="btn ouro" id="btnCobranca">Relação para cobrança</button></span>
+   </div><div id="lista"></div>`;
+  $('#fStatus').value=f.status;
+  const aplicar=()=>{
+    f.texto=$('#fTexto').value; f.status=$('#fStatus').value; f.alerta=$('#fAlerta').value;
+    f.de=$('#fDe').value; f.ate=$('#fAte').value; f.min=$('#fMin').value; f.max=$('#fMax').value;
+    const vmin=f.min?parseValor(f.min):null, vmax=f.max?parseValor(f.max):null;
+    const q=f.texto.toLowerCase().trim();
+    let l=porUnidade(S.ads).filter(a=>{
+      if (f.de && a.data_pagamento<f.de) return false;
+      if (f.ate && a.data_pagamento>f.ate) return false;
+      if (vmin!=null && !isNaN(vmin) && Number(a.valor)<vmin) return false;
+      if (vmax!=null && !isNaN(vmax) && Number(a.valor)>vmax) return false;
+      if (f.status==='aberto' && !a.em_aberto) return false;
+      if (f.status==='fechado' && !['Regularizado','Encerrado com justificativa','Devolvido'].includes(a.status)) return false;
+      if (f.status && !['aberto','fechado'].includes(f.status) && a.status!==f.status) return false;
+      if (f.alerta && a.alerta!==f.alerta) return false;
+      if (q && !`${a.codigo} ${a.fornecedor_nome} ${a.notas_vinculadas||''} ${a.descricao||''} ${a.referencia||''} ${a.fornecedor_cnpj||''}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+    S.listaAd=l;
+    $('#lista').innerHTML=tabelaAds(l,'Nenhum adiantamento com esses filtros.'); ligarLinhas();
+  };
+  ['#fTexto','#fMin','#fMax'].forEach(i=>$(i).oninput=aplicar);
+  ['#fStatus','#fAlerta','#fDe','#fAte'].forEach(i=>$(i).onchange=aplicar);
+  $('#btnExpAd').onclick=()=>exportarAdiantamentos(S.listaAd);
+  $('#btnCobranca').onclick=relacaoCobranca;
+  aplicar();
+}
+
+/* ================= Notas fiscais ================= */
+function telaNotas(){
+  $('#titulo').textContent='Notas fiscais';
+  const f=S.filtroNf;
+  const sts=['Não vinculada','Parcialmente vinculada','Totalmente vinculada','Sem adiantamento','Saldo justificado','Cancelada'];
+  $('#tela').innerHTML = `
+   <div class="filtros">
+     <input type="search" id="fTexto" placeholder="Buscar por número, fornecedor, chave ou adiantamento" value="${esc(f.texto)}">
+     <select id="fStatus"><option value="">Todos os status</option>${sts.map(s=>`<option ${f.status===s?'selected':''}>${s}</option>`).join('')}</select>
+     <span class="grupo">Recebida de <input type="date" id="fDe" value="${f.de||''}"> até <input type="date" id="fAte" value="${f.ate||''}"></span>
+     <span class="acoes-lista"><button class="btn" id="btnExpNf">Exportar lista</button></span>
+   </div><div id="lista"></div>`;
+  const aplicar=()=>{
+    f.texto=$('#fTexto').value; f.status=$('#fStatus').value; f.de=$('#fDe').value; f.ate=$('#fAte').value;
+    const q=f.texto.toLowerCase().trim();
+    const l=porUnidade(S.nfs).filter(n=>(!f.status||n.status===f.status) &&
+      (!f.de || n.data_recebimento>=f.de) && (!f.ate || n.data_recebimento<=f.ate) &&
+      (!q || `${n.numero} ${n.fornecedor_nome} ${n.chave||''} ${n.adiantamentos_vinculados||''}`.toLowerCase().includes(q)));
+    S.listaNf=l;
+    $('#lista').innerHTML = !l.length ? `<div class="quadro"><div class="vazio">Nenhuma NF com esses filtros.</div></div>` :
+     `<div class="quadro"><table><thead><tr><th>NF</th><th>Fornecedor</th><th>Recebimento</th><th class="num">Valor</th><th class="num">Sem vínculo</th><th>Adiantamentos</th><th>Status</th></tr></thead><tbody>
+      ${l.map(n=>`<tr class="clic" data-nf="${n.id}">
+        <td><b>${esc(n.numero)}</b>${n.serie?`<span class="sub"> série ${esc(n.serie)}</span>`:''}<div class="sub">${esc(n.unidade_nome)}</div></td>
+        <td>${esc(n.fornecedor_nome)}</td><td>${dt(n.data_recebimento)}</td>
+        <td class="num">${brl(n.valor)}</td><td class="num">${n.situacao==='ativa'?brl(n.saldo):'—'}</td>
+        <td class="sub">${esc(n.adiantamentos_vinculados||'—')}</td><td>${tagStatus(n.status)}</td></tr>`).join('')}
+      </tbody></table></div>`;
+    ligarLinhas();
+  };
+  $('#fTexto').oninput=aplicar; ['#fStatus','#fDe','#fAte'].forEach(i=>$(i).onchange=aplicar);
+  $('#btnExpNf').onclick=()=>exportarNotas(S.listaNf);
+  aplicar();
+}
+
+/* ================= Excel: exportação, cobrança e backup ================= */
+let _xlsx=null;
+function carregarXLSX(){
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (_xlsx) return _xlsx;
+  const tenta = url => new Promise((ok,falha)=>{ const sc=document.createElement('script'); sc.src=url; sc.onload=()=>ok(window.XLSX); sc.onerror=falha; document.head.appendChild(sc); });
+  _xlsx = tenta('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js')
+          .catch(()=>tenta('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'))
+          .catch(()=>{ _xlsx=null; throw new Error('Não foi possível carregar o gerador de Excel. Verifique a internet.'); });
+  return _xlsx;
+}
+const dataXl = d => { if(!d) return null; const [y,m,dd]=String(d).slice(0,10).split('-').map(Number); return new Date(y,m-1,dd,12); };
+// colunas: [titulo, funcao(registro), tipo('moeda'|'data'|'datahora'|'int'|texto), largura]
+function planilha(XLSX, linhas, colunas){
+  const aoa=[colunas.map(c=>c[0])];
+  for (const r of linhas) aoa.push(colunas.map(c=>{ let v=c[1](r);
+    if (c[2]==='moeda') return v==null||v===''?null:Number(v);
+    if (c[2]==='data') return dataXl(v);
+    if (c[2]==='datahora') return v?new Date(v):null;
+    if (c[2]==='int') return v==null?null:Number(v);
+    return v==null?'':String(v).slice(0,32000); }));
+  const ws=XLSX.utils.aoa_to_sheet(aoa,{cellDates:true});
+  colunas.forEach((c,ci)=>{ const fmt={moeda:'#,##0.00',data:'dd/mm/yyyy',datahora:'dd/mm/yyyy hh:mm'}[c[2]]; if(!fmt) return;
+    for (let ri=1; ri<aoa.length; ri++){ const cel=ws[XLSX.utils.encode_cell({r:ri,c:ci})]; if(cel) cel.z=fmt; } });
+  ws['!cols']=colunas.map(c=>({wch:c[3]||14}));
+  ws['!autofilter']={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:Math.max(aoa.length-1,0),c:colunas.length-1}})};
+  return ws;
+}
+function salvarXlsx(XLSX, abas, nome){
+  const wb=XLSX.utils.book_new();
+  abas.forEach(([titulo,ws])=>XLSX.utils.book_append_sheet(wb,ws,titulo));
+  XLSX.writeFile(wb, nome);
+}
+const sufixo = () => (S.unidade ? '-'+(S.unidades.find(u=>u.id===S.unidade)?.nome||'') : '') + '-' + hoje().split('-').reverse().join('-');
+const COLS_AD = [
+  ['Código',a=>a.codigo,'',14],['Unidade',a=>a.unidade_nome,'',12],['Fornecedor',a=>a.fornecedor_nome,'',30],['CNPJ',a=>fmtCnpj(a.fornecedor_cnpj||''),'',20],
+  ['Data do pagamento',a=>a.data_pagamento,'data',14],['Forma',a=>a.forma_pagamento,'',10],['Referência',a=>a.referencia,'',18],
+  ['Valor adiantado',a=>a.valor,'moeda',15],['NFs vinculadas',a=>a.notas_vinculadas,'',30],['Valor conciliado',a=>a.valor_vinculado,'moeda',15],
+  ['Devolvido',a=>a.valor_devolvido,'moeda',12],['Saldo pendente',a=>a.saldo,'moeda',15],['Dias desde o pagamento',a=>a.dias_desde_pagamento,'int',10],
+  ['Status',a=>a.status,'',24],['Alerta',a=>a.alerta,'',16],['Finalidade',a=>a.descricao,'',28],['Observações',a=>a.observacoes,'',30],
+  ['Justificativa',a=>a.situacao!=='ativo'?a.motivo_situacao:'','',30],['Registrado por',a=>a.responsavel_nome,'',16]];
+const COLS_NF = [
+  ['NF',n=>n.numero,'',10],['Série',n=>n.serie,'',6],['Unidade',n=>n.unidade_nome,'',12],['Fornecedor',n=>n.fornecedor_nome,'',30],['CNPJ',n=>fmtCnpj(n.fornecedor_cnpj||''),'',20],
+  ['Recebida em',n=>n.data_recebimento,'data',13],['Valor da NF',n=>n.valor,'moeda',14],['Vinculado',n=>n.valor_vinculado,'moeda',14],
+  ['Sem vínculo',n=>n.situacao==='ativa'?n.saldo:0,'moeda',14],['Adiantamentos',n=>n.adiantamentos_vinculados,'',28],['Status',n=>n.status,'',22],
+  ['Justificativa',n=>n.motivo_situacao,'',30],['Chave de acesso',n=>n.chave,'',46]];
+
+async function exportarAdiantamentos(lista){
+  if (!lista?.length) return toast('Não há adiantamentos na lista para exportar.',true);
+  try{ const X=await carregarXLSX(); salvarXlsx(X,[['Adiantamentos',planilha(X,lista,COLS_AD)]],`Adiantamentos${sufixo()}.xlsx`); toast(`${lista.length} adiantamento(s) exportado(s).`); }
+  catch(e){ toast(e.message,true); }
+}
+async function exportarNotas(lista){
+  if (!lista?.length) return toast('Não há NFs na lista para exportar.',true);
+  try{ const X=await carregarXLSX(); salvarXlsx(X,[['Notas fiscais',planilha(X,lista,COLS_NF)]],`Notas-fiscais${sufixo()}.xlsx`); toast(`${lista.length} NF(s) exportada(s).`); }
+  catch(e){ toast(e.message,true); }
+}
+async function relacaoCobranca(){
+  const abertos = porUnidade(S.ads).filter(a=>a.em_aberto || a.divergencia)
+    .sort((x,y)=>x.fornecedor_nome.localeCompare(y.fornecedor_nome,'pt-BR') || y.dias_desde_pagamento-x.dias_desde_pagamento);
+  if (!abertos.length) return toast('Nenhuma pendência para cobrar. Tudo documentado.');
+  const porForn = Object.values(abertos.reduce((m,a)=>{ const k=a.fornecedor_id;
+    m[k] ??= {fornecedor:a.fornecedor_nome, cnpj:a.fornecedor_cnpj, qtd:0, pendente:0, maisAntigo:0, codigos:[]};
+    m[k].qtd++; m[k].pendente+=a.em_aberto?Number(a.saldo):0; m[k].maisAntigo=Math.max(m[k].maisAntigo,a.dias_desde_pagamento); m[k].codigos.push(a.codigo); return m; },{}))
+    .sort((x,y)=>y.pendente-x.pendente);
+  const providencia = a => a.divergencia ? 'Conferir NF maior que o adiantado' : a.status==='Conferência manual' ? 'Concluir conferência' :
+     a.status==='Sem NF' ? 'Cobrar NF do fornecedor' : 'Cobrar NF do saldo restante ou devolução';
+  try{
+    const X=await carregarXLSX();
+    const resumo=planilha(X,porForn,[['Fornecedor',r=>r.fornecedor,'',32],['CNPJ',r=>fmtCnpj(r.cnpj||''),'',20],['Adiantamentos pendentes',r=>r.qtd,'int',12],
+      ['Valor sem documentação',r=>r.pendente,'moeda',18],['Dias do mais antigo',r=>r.maisAntigo,'int',12],['Códigos',r=>r.codigos.join(', '),'',40]]);
+    const det=planilha(X,abertos,[['Fornecedor',a=>a.fornecedor_nome,'',30],['Código',a=>a.codigo,'',14],['Unidade',a=>a.unidade_nome,'',12],
+      ['Data do pagamento',a=>a.data_pagamento,'data',14],['Valor adiantado',a=>a.valor,'moeda',15],['NFs já recebidas',a=>a.notas_vinculadas,'',28],
+      ['Falta documentar',a=>a.saldo,'moeda',15],['Dias em aberto',a=>a.dias_desde_pagamento,'int',10],['Alerta',a=>a.alerta,'',14],
+      ['Providência',providencia,'',36],['Finalidade',a=>a.descricao,'',28],['Referência do pagamento',a=>a.referencia,'',20]]);
+    salvarXlsx(X,[['Por fornecedor',resumo],['Detalhe',det]],`Cobranca-adiantamentos${sufixo()}.xlsx`);
+    toast(`Relação gerada: ${porForn.length} fornecedor(es), ${abertos.length} adiantamento(s).`);
+  } catch(e){ toast(e.message,true); }
+}
+async function buscarTudo(tabela, ordem){
+  const tudo=[]; const passo=1000;
+  for (let i=0;;i+=passo){
+    const { data, error } = await sb.from(tabela).select('*').order(ordem).range(i,i+passo-1);
+    if (error) throw new Error(`Falha ao ler ${tabela}: ${error.message}`);
+    tudo.push(...data); if (data.length<passo) break;
+  }
+  return tudo;
+}
+function lembreteBackup(){
+  if (!eCoord()) return '';
+  let ult=null; try{ ult=localStorage.getItem('cb_ultimo_backup'); }catch(e){}
+  const dias = ult ? Math.floor((Date.now()-Number(ult))/864e5) : null;
+  if (dias!==null && dias<7) return '';
+  return `<div class="lembrete"><span>${dias===null?'Nenhum backup baixado neste computador ainda.':`Último backup baixado há ${dias} dias.`} Baixe a cópia semanal e guarde na pasta do financeiro.</span><button class="btn mini ouro" id="lbBackup">Baixar backup completo</button></div>`;
+}
+async function baixarBackup(){
+  toast('Gerando backup…');
+  try{
+    const [X, ads, nfs, vin, dev, forn, hist, uni] = await Promise.all([carregarXLSX(),
+      buscarTudo('vw_adiantamentos','id'), buscarTudo('vw_notas','id'), buscarTudo('vinculos','id'), buscarTudo('devolucoes','id'),
+      buscarTudo('fornecedores','id'), buscarTudo('historico','id'), buscarTudo('unidades','id')]);
+    const cod = Object.fromEntries(ads.map(a=>[a.id,a.codigo])), nfn = Object.fromEntries(nfs.map(n=>[n.id,n.numero]));
+    const quando = new Date().toLocaleString('pt-BR');
+    const resumo = X.utils.aoa_to_sheet([['Backup — Controle de Adiantamentos Casa Brasilis'],['Gerado em',quando],['Gerado por',S.perfil.nome],[],
+      ['Adiantamentos',ads.length],['Notas fiscais',nfs.length],['Vínculos (inclui desfeitos)',vin.length],['Devoluções',dev.length],['Fornecedores',forn.length],['Registros de histórico',hist.length]]);
+    resumo['!cols']=[{wch:30},{wch:24}];
+    const abas=[['Resumo',resumo],
+      ['Adiantamentos',planilha(X,ads,[['ID',a=>a.id,'int',6],...COLS_AD,['Situação interna',a=>a.situacao,'',12],['Criado em',a=>a.created_at,'datahora',17]])],
+      ['Notas fiscais',planilha(X,nfs,[['ID',n=>n.id,'int',6],...COLS_NF,['Emissão',n=>n.data_emissao,'data',12],['Observações',n=>n.observacoes,'',28],['Criada em',n=>n.created_at,'datahora',17]])],
+      ['Vínculos',planilha(X,vin,[['ID',v=>v.id,'int',6],['Adiantamento',v=>cod[v.adiantamento_id]||v.adiantamento_id,'',14],['NF',v=>nfn[v.nota_id]||v.nota_id,'',10],
+        ['Valor',v=>v.valor,'moeda',14],['Ativo',v=>v.ativo?'Sim':'Não (desfeito)','',14],['Justificativa',v=>v.justificativa,'',30],['Motivo do desvínculo',v=>v.motivo_desvinculo,'',30],
+        ['Criado em',v=>v.created_at,'datahora',17],['Desfeito em',v=>v.desvinculado_em,'datahora',17]])],
+      ['Devoluções',planilha(X,dev,[['ID',d=>d.id,'int',6],['Adiantamento',d=>cod[d.adiantamento_id]||d.adiantamento_id,'',14],['Data',d=>d.data,'data',12],['Valor',d=>d.valor,'moeda',14],
+        ['Forma',d=>d.forma,'',10],['Ativa',d=>d.ativo?'Sim':'Não (estornada)','',14],['Observação',d=>d.observacao,'',28],['Motivo do estorno',d=>d.motivo_estorno,'',28]])],
+      ['Fornecedores',planilha(X,forn,[['ID',f=>f.id,'int',6],['Nome',f=>f.nome,'',34],['CNPJ',f=>fmtCnpj(f.cnpj||''),'',20],['Ativo',f=>f.ativo?'Sim':'Não','',8]])],
+      ['Unidades',planilha(X,uni,[['ID',u=>u.id,'int',6],['Nome',u=>u.nome,'',16],['CNPJ',u=>fmtCnpj(u.cnpj||''),'',20]])],
+      ['Histórico',planilha(X,hist,[['ID',h=>h.id,'int',8],['Quando',h=>h.momento,'datahora',17],['Usuário',h=>h.usuario_nome,'',16],['Tabela',h=>h.tabela,'',14],
+        ['Registro',h=>h.registro_id,'int',9],['Ação',h=>h.acao,'',18],['Antes',h=>h.antes?JSON.stringify(h.antes):'','',40],['Depois',h=>h.depois?JSON.stringify(h.depois):'','',40]])]];
+    salvarXlsx(X,abas,`Backup-Adiantamentos-Casa-Brasilis-${hoje().split('-').reverse().join('-')}.xlsx`);
+    try{ localStorage.setItem('cb_ultimo_backup', String(Date.now())); }catch(e){}
+    toast('Backup baixado. Guarde o arquivo na pasta do financeiro.');
+    if (S.tela==='painel') desenhar();
+  } catch(e){ toast(e.message||'Não foi possível gerar o backup.',true); }
+}
+$('#btnBackup').onclick=baixarBackup;
+
+/* ================= Usuários (coordenador) ================= */
+async function telaUsuarios(){
+  $('#titulo').textContent='Usuários';
+  const users = await exec(sb.rpc('listar_usuarios_v2'));
+  $('#tela').innerHTML = `
+   <p class="sub" style="margin:0 0 12px;max-width:640px">Novos acessos são criados no Supabase (Authentication → Users → Add user). Eles aparecem aqui bloqueados até você liberar e escolher o perfil.</p>
+   <div class="quadro"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Senha</th><th>Acesso</th></tr></thead><tbody>
+   ${users.map(u=>`<tr><td>${esc(u.nome)}</td><td class="sub">${esc(u.email)}</td>
+     <td><select data-papel="${u.user_id}" ${u.user_id===S.perfil.user_id?'disabled':''}>
+       ${['coordenador','operador','leitura'].map(p=>`<option value="${p}" ${u.papel===p?'selected':''}>${({coordenador:'Coordenador',operador:'Operador',leitura:'Somente leitura'})[p]}</option>`).join('')}</select></td>
+     <td>${u.senha_definida?'<span class="tag t-ok">Pessoal</span>':'<span class="tag t-atencao">Provisória</span>'}</td>
+     <td>${u.user_id===S.perfil.user_id?'<span class="tag t-ok">Liberado</span>':`<button class="btn mini ${u.ativo?'perigo':'pri'}" data-ativo="${u.user_id}" data-v="${!u.ativo}">${u.ativo?'Bloquear':'Liberar acesso'}</button>`}</td></tr>`).join('')}
+   </tbody></table></div>
+   <h2 style="margin-top:24px">Prazos de alerta</h2>
+   <form id="fCfg" class="bloco" style="max-width:520px"><div class="campos">
+     <label class="c">"Atenção" a partir de (dias)<input type="number" min="1" name="dias_atencao" value="${S.cfg.dias_atencao}"></label>
+     <label class="c">"Atrasado" a partir de (dias)<input type="number" min="2" name="dias_atrasado" value="${S.cfg.dias_atrasado}"></label>
+   </div><div class="rodape-modal"><button class="btn pri">Salvar prazos</button></div></form>`;
+  $('#tela').querySelectorAll('[data-papel]').forEach(s=>s.onchange=async()=>{
+    await exec(sb.from('perfis').update({papel:s.value}).eq('user_id',s.dataset.papel),'Perfil alterado.'); });
+  $('#tela').querySelectorAll('[data-ativo]').forEach(b=>b.onclick=async()=>{
+    await exec(sb.from('perfis').update({ativo:b.dataset.v==='true'}).eq('user_id',b.dataset.ativo), b.dataset.v==='true'?'Acesso liberado.':'Acesso bloqueado.');
+    telaUsuarios(); });
+  $('#fCfg').onsubmit=async e=>{ e.preventDefault(); const f=new FormData(e.target);
+    await exec(sb.from('configuracoes').update({dias_atencao:Number(f.get('dias_atencao')),dias_atrasado:Number(f.get('dias_atrasado'))}).eq('id',1),'Prazos salvos.');
+    carregar(); };
+}
+
+/* ================= Modais ================= */
+$('#modal').addEventListener('cancel', e=>{ if ($('#modal').dataset.travado) e.preventDefault(); });
+function modal(html, aoEnviar, travado=false){
+  const d=$('#modal'); d.innerHTML=`<form method="dialog" novalidate>${html}</form>`;
+  if (travado) d.dataset.travado='1'; else delete d.dataset.travado;
+  const f=d.querySelector('form');
+  f.querySelector('[data-cancelar]')?.addEventListener('click',e=>{e.preventDefault(); d.close();});
+  f.onsubmit=async e=>{
+    e.preventDefault();
+    const btn=f.querySelector('button.pri'); btn.disabled=true;
+    try{ const r=await aoEnviar(new FormData(f), f); if (r!==false) d.close(); }
+    catch(err){ if(!err?.message) console.error(err); }
+    finally{ btn.disabled=false; }
+  };
+  d.showModal(); setTimeout(()=>f.querySelector('input:not([type=hidden]),select,textarea')?.focus(),30);
+  return f;
+}
+function pedirTexto(titulo, desc, rotulo, botao, cb, perigo=false){
+  modal(`<h3>${titulo}</h3><p class="desc">${desc}</p>
+    <label class="c">${rotulo} <span class="ob">*</span><textarea name="t" required minlength="5"></textarea></label>
+    <div class="rodape-modal"><button class="btn" data-cancelar>Voltar</button><button class="btn pri ${perigo?'':''}">${botao}</button></div>`,
+    async fd=>{ const t=(fd.get('t')||'').trim(); if (t.length<5){ toast('Escreva a justificativa (mínimo de 5 caracteres).',true); return false; } await cb(t); });
+}
+const optUnidades = sel => (sel===''||sel==null?'<option value="">Escolha a unidade</option>':'')+S.unidades.map(u=>`<option value="${u.id}" ${sel==u.id?'selected':''}>${esc(u.nome)}</option>`).join('');
+const datalistForn = () => `<datalist id="dlForn">${S.fornecedores.filter(f=>f.ativo).map(f=>`<option value="${esc(f.nome)}">${f.cnpj?fmtCnpj(f.cnpj):''}</option>`).join('')}</datalist>`;
+
+async function resolverFornecedor(nome, cnpj){
+  nome=(nome||'').trim(); cnpj=soDig(cnpj);
+  if (!nome) { toast('Informe o fornecedor.',true); throw new Error(); }
+  if (cnpj && cnpj.length!==14 && cnpj.length!==11){ toast('CNPJ/CPF do fornecedor deve ter 14 ou 11 dígitos.',true); throw new Error(); }
+  let f = (cnpj && S.fornecedores.find(x=>x.cnpj===cnpj)) || S.fornecedores.find(x=>x.nome.toLowerCase()===nome.toLowerCase());
+  if (f){
+    if (cnpj && !f.cnpj){ await exec(sb.from('fornecedores').update({cnpj}).eq('id',f.id)); f.cnpj=cnpj; }
+    return f.id;
+  }
+  const novo = await exec(sb.from('fornecedores').insert({nome, cnpj:cnpj||null}).select().single());
+  S.fornecedores.push(novo); return novo.id;
+}
+function ligarFornecedorCnpj(form){
+  const n=form.querySelector('[name=fornecedor]'), c=form.querySelector('[name=cnpj]');
+  n.addEventListener('change',()=>{ const f=S.fornecedores.find(x=>x.nome.toLowerCase()===n.value.trim().toLowerCase()); if (f&&f.cnpj&&!c.value) c.value=fmtCnpj(f.cnpj); });
+}
+
+/* ---------- Novo / editar adiantamento ---------- */
+function formAdiantamento(a=null){
+  const forn = a ? S.fornecedores.find(f=>f.id===a.fornecedor_id) : null;
+  const f = modal(`
+   <h3>${a?'Editar '+esc(a.codigo):'Novo adiantamento'}</h3>
+   <p class="desc">${a?'As alterações ficam registradas no histórico.':'Só os campos com * são obrigatórios. Complete o resto quando tiver a informação.'}</p>
+   ${datalistForn()}
+   <div class="campos">
+     <label class="c">Unidade pagadora <span class="ob">*</span><select name="unidade_id" required>${optUnidades(a?.unidade_id ?? (S.unidade||''))}</select></label>
+     <label class="c">Data do pagamento <span class="ob">*</span><input type="date" name="data_pagamento" required value="${a?.data_pagamento||hoje()}" max="${hoje()}"></label>
+     <label class="c">Fornecedor <span class="ob">*</span><input name="fornecedor" list="dlForn" required autocomplete="off" value="${esc(forn?.nome||'')}"></label>
+     <label class="c">CNPJ do fornecedor<input name="cnpj" inputmode="numeric" value="${forn?.cnpj?fmtCnpj(forn.cnpj):''}"></label>
+     <label class="c">Valor pago (R$) <span class="ob">*</span><input name="valor" inputmode="decimal" required placeholder="0,00" value="${a?fmtInput(a.valor):''}"></label>
+     <label class="c">Forma de pagamento<select name="forma_pagamento"><option value=""></option>${FORMAS.map(x=>`<option ${a?.forma_pagamento===x?'selected':''}>${x}</option>`).join('')}</select></label>
+     <label class="c inteiro">Comprovante / referência bancária<input name="referencia" value="${esc(a?.referencia||'')}"></label>
+     <label class="c inteiro">Finalidade<input name="descricao" placeholder="Ex.: farinha para outubro" value="${esc(a?.descricao||'')}"></label>
+     <label class="c inteiro">Produtos ou mercadorias<input name="produtos" value="${esc(a?.produtos||'')}"></label>
+     <label class="c inteiro">Observações<textarea name="observacoes">${esc(a?.observacoes||'')}</textarea></label>
+   </div>
+   <div class="rodape-modal"><button class="btn" data-cancelar>Cancelar</button><button class="btn pri">${a?'Salvar alterações':'Cadastrar adiantamento'}</button></div>`,
+   async fd=>{
+     const valor=parseValor(fd.get('valor'));
+     if (!fd.get('unidade_id')){ toast('Escolha a unidade pagadora.',true); return false; }
+     if (!(valor>0)){ toast('Informe um valor pago válido, por exemplo 1.250,00.',true); return false; }
+     if (!fd.get('data_pagamento')){ toast('Informe a data do pagamento.',true); return false; }
+     const fornecedor_id = await resolverFornecedor(fd.get('fornecedor'), fd.get('cnpj'));
+     const reg = { unidade_id:Number(fd.get('unidade_id')), fornecedor_id, data_pagamento:fd.get('data_pagamento'), valor,
+       forma_pagamento:fd.get('forma_pagamento')||null, referencia:fd.get('referencia')||null, descricao:fd.get('descricao')||null,
+       produtos:fd.get('produtos')||null, observacoes:fd.get('observacoes')||null };
+     if (a){ await exec(sb.from('adiantamentos').update(reg).eq('id',a.id),'Adiantamento atualizado.'); await carregar(); abrirAdiantamento(a.id); }
+     else { const novo=await exec(sb.from('adiantamentos').insert(reg).select().single(), null);
+            toast(`Adiantamento ${novo.codigo} cadastrado.`); await carregar(); abrirAdiantamento(novo.id); }
+   });
+  ligarFornecedorCnpj(f);
+}
+$('#btnNovoAd').onclick=()=>formAdiantamento();
+
+/* ---------- Registrar NF ---------- */
+function formNota(opts={}){
+  const n=opts.nota, ad=opts.adiantamento;
+  const forn = S.fornecedores.find(f=>f.id===(n?.fornecedor_id ?? ad?.fornecedor_id));
+  const f = modal(`
+   <h3>${n?'Editar NF '+esc(n.numero):'Registrar nota fiscal'}</h3>
+   <p class="desc">${ad?`A NF será vinculada ao ${esc(ad.codigo)} logo após o registro.`:'Registre a NF assim que ela chegar, mesmo sem saber a qual adiantamento pertence.'}</p>
+   ${datalistForn()}
+   <div class="campos">
+     <label class="c">Unidade destinatária <span class="ob">*</span><select name="unidade_id" required>${optUnidades(n?.unidade_id ?? ad?.unidade_id ?? (S.unidade||''))}</select></label>
+     <label class="c">Data de recebimento <span class="ob">*</span><input type="date" name="data_recebimento" required value="${n?.data_recebimento||hoje()}"></label>
+     <label class="c">Fornecedor (emitente) <span class="ob">*</span><input name="fornecedor" list="dlForn" required autocomplete="off" value="${esc(forn?.nome||'')}"></label>
+     <label class="c">CNPJ do emitente<input name="cnpj" inputmode="numeric" value="${forn?.cnpj?fmtCnpj(forn.cnpj):''}"></label>
+     <label class="c">Número da NF <span class="ob">*</span><input name="numero" inputmode="numeric" required value="${esc(n?.numero||'')}"></label>
+     <label class="c">Série<input name="serie" value="${esc(n?.serie||'')}"></label>
+     <label class="c">Valor total da NF (R$) <span class="ob">*</span><input name="valor" inputmode="decimal" required placeholder="0,00" value="${n?fmtInput(n.valor):''}"></label>
+     <label class="c">Data de emissão<input type="date" name="data_emissao" value="${n?.data_emissao||''}"></label>
+     <label class="c inteiro">Chave de acesso (44 dígitos)<input name="chave" inputmode="numeric" value="${esc(n?.chave||'')}"></label>
+     ${ad?`<label class="c inteiro">Valor a vincular ao ${esc(ad.codigo)} (R$) <span class="ob">*</span><input name="valor_vinculo" inputmode="decimal" placeholder="Saldo do adiantamento: ${fmtInput(ad.saldo)}"></label>`:''}
+     <label class="c inteiro">Observações<textarea name="observacoes">${esc(n?.observacoes||'')}</textarea></label>
+   </div>
+   <div class="rodape-modal"><button class="btn" data-cancelar>Cancelar</button><button class="btn pri">${n?'Salvar alterações':ad?'Registrar e vincular':'Registrar NF'}</button></div>`,
+   async fd=>{
+     const valor=parseValor(fd.get('valor')), numero=soDig(fd.get('numero')).replace(/^0+(?=\d)/,''), chave=soDig(fd.get('chave'));
+     if (!fd.get('unidade_id')){ toast('Escolha a unidade destinatária.',true); return false; }
+     if (!numero){ toast('Informe o número da NF.',true); return false; }
+     if (!(valor>0)){ toast('Informe o valor total da NF, por exemplo 1.250,00.',true); return false; }
+     if (chave && chave.length!==44){ toast('A chave de acesso tem 44 dígitos.',true); return false; }
+     let vv=null;
+     if (ad){ vv = fd.get('valor_vinculo') ? parseValor(fd.get('valor_vinculo')) : Math.min(valor, Number(ad.saldo));
+              if (!(vv>0)){ toast('Informe o valor a vincular.',true); return false; } }
+     const fornecedor_id = await resolverFornecedor(fd.get('fornecedor'), fd.get('cnpj'));
+     const reg = { unidade_id:Number(fd.get('unidade_id')), fornecedor_id, numero, serie:fd.get('serie')?.trim()||null, chave:chave||null,
+       data_emissao:fd.get('data_emissao')||null, data_recebimento:fd.get('data_recebimento'), valor, observacoes:fd.get('observacoes')||null };
+     if (n){ await exec(sb.from('notas_fiscais').update(reg).eq('id',n.id),'NF atualizada.'); await carregar(); abrirNota(n.id); return; }
+     const nova = await exec(sb.from('notas_fiscais').insert(reg).select().single(), `NF ${numero} registrada.`);
+     if (ad){
+       const difere = nova.unidade_id!==ad.unidade_id || nova.fornecedor_id!==ad.fornecedor_id;
+       if (difere){ await carregar(); $('#modal').close(); dialogVincular(ad, nova.id, vv); return false; }
+       try{ await exec(sb.from('vinculos').insert({adiantamento_id:ad.id, nota_id:nova.id, valor:vv}),'NF registrada e vinculada.'); }
+       finally{ await carregar(); abrirAdiantamento(ad.id); }
+     } else { await carregar(); if (S.tela!=='notas'){ S.tela='notas'; desenhar(); } }
+   });
+  ligarFornecedorCnpj(f);
+}
+
+
+/* ---------- Trocar senha ---------- */
+function trocarSenha(obrigatorio=false){
+  modal(`
+   <h3>${obrigatorio?'Crie sua senha pessoal':'Trocar senha'}</h3>
+   <p class="desc">${obrigatorio?'Você entrou com a senha provisória. Antes de continuar, defina uma senha que só você saiba.':'A nova senha passa a valer no próximo acesso, em qualquer computador.'}</p>
+   <div class="campos" style="grid-template-columns:1fr">
+     <label class="c">Nova senha <span class="ob">*</span><input type="password" name="s1" autocomplete="new-password" minlength="8" required></label>
+     <label class="c">Repita a nova senha <span class="ob">*</span><input type="password" name="s2" autocomplete="new-password" required></label>
+   </div>
+   <p class="sub" style="margin:8px 0 0">Mínimo de 8 caracteres. Evite datas e nomes fáceis de adivinhar.</p>
+   <div class="rodape-modal">${obrigatorio?'<button class="btn" id="sairObrig">Sair</button>':'<button class="btn" data-cancelar>Cancelar</button>'}<button class="btn pri">Salvar nova senha</button></div>`,
+   async fd=>{
+     const s1=fd.get('s1')||'', s2=fd.get('s2')||'';
+     if (s1.length<8){ toast('A senha precisa ter pelo menos 8 caracteres.',true); return false; }
+     if (s1!==s2){ toast('As duas senhas não são iguais. Digite novamente.',true); return false; }
+     const { error } = await sb.auth.updateUser({ password:s1 });
+     if (error){
+       const m=error.message||'';
+       toast(/different|same/i.test(m)?'A nova senha deve ser diferente da senha atual.'
+           : /weak|least|short|characters/i.test(m)?'Senha fraca. Use pelo menos 8 caracteres, misturando letras e números.'
+           : /reauth/i.test(m)?'Por segurança, saia e entre de novo antes de trocar a senha.' : m, true);
+       return false;
+     }
+     await sb.rpc('marcar_senha_definida');
+     S.perfil.senha_definida=true;
+     toast('Senha alterada.');
+   }, obrigatorio);
+  $('#sairObrig')?.addEventListener('click', async e=>{ e.preventDefault(); await sb.auth.signOut(); location.reload(); });
+}
+$('#trocarSenha').onclick=()=>trocarSenha(false);
+
+/* ---------- Baixa rápida: NF chegou (100% ou parcial) ---------- */
+function darBaixa(a){
+  if (!a) return;
+  const f = modal(`
+   <h3>Dar baixa no ${esc(a.codigo)}</h3>
+   <p class="desc">${esc(a.fornecedor_nome)} · ${esc(a.unidade_nome)} · saldo a regularizar <b>${brl(a.saldo)}</b></p>
+   <div class="lista-escolha" style="max-height:none">
+     <label><input type="radio" name="tipo" value="total" checked><span><b>Recebido 100%</b><div class="sub">A NF cobre todo o saldo de ${brl(a.saldo)}</div></span><span></span></label>
+     <label><input type="radio" name="tipo" value="parcial"><span><b>Recebido parcial</b><div class="sub">Chegou só parte da mercadoria ou a NF é menor</div></span><span></span></label>
+   </div>
+   <div class="campos">
+     <label class="c">Número da NF <span class="ob">*</span><input name="numero" inputmode="numeric" required autocomplete="off"></label>
+     <label class="c">Recebida em<input type="date" name="data" value="${hoje()}" max="${hoje()}"></label>
+     <label class="c hidden" id="cParcial">Valor desta NF (R$) <span class="ob">*</span><input name="valor" inputmode="decimal" placeholder="0,00"></label>
+     <label class="c inteiro" style="flex-direction:row;align-items:center;gap:8px;color:var(--tinta)"><input type="checkbox" name="maior"> A NF é maior que o valor adiantado</label>
+     <label class="c hidden" id="cTotal">Valor total da NF (R$) <span class="ob">*</span><input name="total" inputmode="decimal" placeholder="0,00"></label>
+   </div>
+   <div class="rodape-modal"><button class="btn" data-cancelar>Cancelar</button><button class="btn pri">Confirmar baixa</button></div>`,
+   async fd=>{
+     const numero = soDig(fd.get('numero')).replace(/^0+(?=\d)/,'');
+     if (!numero){ toast('Informe o número da NF.',true); return false; }
+     const parcial = fd.get('tipo')==='parcial';
+     const saldo = Number(a.saldo);
+     const valor = parcial ? parseValor(fd.get('valor')) : saldo;
+     if (!(valor>0)){ toast('Informe o valor desta NF, por exemplo 700,00.',true); return false; }
+     if (parcial && valor>=saldo){ toast(`Para parcial, o valor deve ser menor que o saldo (${brl(saldo)}). Se cobre tudo, marque "Recebido 100%".`,true); return false; }
+     let total = valor;
+     if (fd.get('maior')){
+       total = parseValor(fd.get('total'));
+       if (!(total>valor)){ toast(`Informe o valor total da NF, maior que ${brl(valor)}.`,true); return false; }
+     }
+     // mesma NF já registrada para este fornecedor (ex.: NF rateada entre dois adiantamentos)
+     let nf = S.nfs.find(n=>n.fornecedor_id===a.fornecedor_id && n.numero===numero && n.situacao!=='cancelada');
+     if (nf){
+       if (nf.situacao!=='ativa'){ toast(`A NF ${numero} está como "${nf.status}" e não aceita baixa.`,true); return false; }
+       if (Number(nf.saldo) < valor){ toast(`A NF ${numero} já foi usada em outro adiantamento e só tem ${brl(nf.saldo)} disponível.`,true); return false; }
+     } else {
+       nf = await exec(sb.from('notas_fiscais').insert({unidade_id:a.unidade_id, fornecedor_id:a.fornecedor_id, numero,
+             data_recebimento:fd.get('data')||hoje(), valor:total, observacoes:'Registrada pela baixa rápida'}).select().single());
+     }
+     try{
+       await exec(sb.from('vinculos').insert({adiantamento_id:a.id, nota_id:nf.id, valor}));
+       const resta = Math.round((saldo-valor)*100)/100;
+       toast(resta>0 ? `Baixa parcial registrada. Falta documentar ${brl(resta)}.` : `Baixa registrada. ${a.codigo} regularizado com a NF ${numero}.`);
+     } finally { await carregar(); if ($('#gaveta').innerHTML) abrirAdiantamento(a.id); }
+   });
+  const tipo=()=>f.querySelector('[name=tipo]:checked').value;
+  const atualizar=()=>{
+    $('#cParcial').classList.toggle('hidden', tipo()!=='parcial');
+    $('#cTotal').classList.toggle('hidden', !f.querySelector('[name=maior]').checked);
+  };
+  f.querySelectorAll('[name=tipo],[name=maior]').forEach(i=>i.onchange=atualizar);
+}
+
+/* ---------- Vincular ---------- */
+function dialogVincular(ad, notaPre=null, valorPre=null){
+  const cand = S.nfs.filter(n=>n.situacao==='ativa' && Number(n.saldo)>0);
+  const mesmo = cand.filter(n=>n.fornecedor_id===ad.fornecedor_id);
+  const outros = cand.filter(n=>n.fornecedor_id!==ad.fornecedor_id);
+  const item = n => `<label><input type="radio" name="nota" value="${n.id}" ${notaPre===n.id?'checked':''}>
+     <span><b>NF ${esc(n.numero)}</b>${n.serie?' série '+esc(n.serie):''} · ${esc(n.fornecedor_nome)}<div class="sub">${esc(n.unidade_nome)} · recebida ${dt(n.data_recebimento)} · total ${brl(n.valor)}</div></span>
+     <span class="num">disponível<br><b>${brl(n.saldo)}</b></span></label>`;
+  const f = modal(`
+   <h3>Vincular NF ao ${esc(ad.codigo)}</h3>
+   <p class="desc">${esc(ad.fornecedor_nome)} · saldo a regularizar <b>${brl(ad.saldo)}</b></p>
+   <input type="search" id="buscaNf" placeholder="Filtrar por número ou fornecedor" style="width:100%;padding:8px 10px;border:1px solid var(--linha);border-radius:6px">
+   <div class="lista-escolha" id="listaNf">
+     ${mesmo.length?`<div class="grupo-escolha">Mesmo fornecedor</div>${mesmo.map(item).join('')}`:''}
+     ${outros.length?`<div class="grupo-escolha">Outros fornecedores</div>${outros.map(item).join('')}`:''}
+     ${!cand.length?'<div class="vazio">Nenhuma NF com saldo disponível. Use "Registrar NF e vincular".</div>':''}
+   </div>
+   <div id="avisoDif" class="aviso hidden"></div>
+   <div class="campos">
+     <label class="c">Valor a vincular (R$) <span class="ob">*</span><input name="valor" inputmode="decimal" required></label>
+     <label class="c inteiro hidden" id="campoJust">Justificativa <span class="ob">*</span><textarea name="justificativa"></textarea></label>
+   </div>
+   <div class="rodape-modal"><button class="btn" data-cancelar>Cancelar</button><button class="btn pri">Vincular</button></div>`,
+   async fd=>{
+     const nid=Number(fd.get('nota')); if(!nid){ toast('Escolha a NF.',true); return false; }
+     const valor=parseValor(fd.get('valor')); if(!(valor>0)){ toast('Informe o valor a vincular.',true); return false; }
+     await exec(sb.from('vinculos').insert({adiantamento_id:ad.id, nota_id:nid, valor, justificativa:(fd.get('justificativa')||'').trim()||null}),'NF vinculada.');
+     await carregar(); abrirAdiantamento(ad.id);
+   });
+  const atualizar=()=>{
+    const nid=Number(f.querySelector('[name=nota]:checked')?.value); const n=S.nfs.find(x=>x.id===nid);
+    if (!n) return;
+    const v=f.querySelector('[name=valor]');
+    if (!v.dataset.mexido) v.value=fmtInput(valorPre ?? Math.min(Number(n.saldo), Number(ad.saldo)));
+    const dif=[]; if (n.unidade_id!==ad.unidade_id) dif.push(`a NF é da unidade ${n.unidade_nome} e o pagamento saiu de ${ad.unidade_nome}`);
+    if (n.fornecedor_id!==ad.fornecedor_id) dif.push(`o emitente (${n.fornecedor_nome}) é diferente do fornecedor pago`);
+    $('#avisoDif').classList.toggle('hidden',!dif.length); $('#campoJust').classList.toggle('hidden',!dif.length);
+    $('#avisoDif').textContent = dif.length ? 'Atenção: '+dif.join(' e ')+'. Explique o motivo para vincular.' : '';
+    const sobra = Number(n.saldo) - Number(ad.saldo);
+    if (!dif.length && sobra>0){ $('#avisoDif').classList.remove('hidden'); $('#avisoDif').className='aviso roxo';
+      $('#avisoDif').textContent=`A NF tem ${brl(n.saldo)} disponível e o adiantamento só precisa de ${brl(ad.saldo)}. Os ${brl(sobra)} restantes ficam na NF como excedente a conferir.`; }
+    else $('#avisoDif').className = 'aviso'+(dif.length?'':' hidden');
+  };
+  f.querySelector('[name=valor]').addEventListener('input',e=>e.target.dataset.mexido=1);
+  f.querySelectorAll('[name=nota]').forEach(r=>r.onchange=()=>{ delete f.querySelector('[name=valor]').dataset.mexido; atualizar(); });
+  $('#buscaNf').oninput=e=>{ const q=e.target.value.toLowerCase(); f.querySelectorAll('#listaNf label').forEach(l=>l.classList.toggle('hidden',!l.textContent.toLowerCase().includes(q))); };
+  atualizar();
+}
+function dialogVincularDaNota(n){
+  const cand = S.ads.filter(a=>['ativo','conferencia'].includes(a.situacao) && Number(a.saldo)>0);
+  const mesmo=cand.filter(a=>a.fornecedor_id===n.fornecedor_id), outros=cand.filter(a=>a.fornecedor_id!==n.fornecedor_id);
+  const item = a => `<label><input type="radio" name="ad" value="${a.id}"><span><b>${esc(a.codigo)}</b> · ${esc(a.fornecedor_nome)}<div class="sub">${esc(a.unidade_nome)} · pago ${dt(a.data_pagamento)} · ${brl(a.valor)}${a.descricao?' · '+esc(a.descricao):''}</div></span><span class="num">saldo<br><b>${brl(a.saldo)}</b></span></label>`;
+  modal(`<h3>Vincular NF ${esc(n.numero)} a um adiantamento</h3>
+   <p class="desc">${esc(n.fornecedor_nome)} · disponível na NF <b>${brl(n.saldo)}</b></p>
+   <div class="lista-escolha">${mesmo.length?`<div class="grupo-escolha">Mesmo fornecedor</div>${mesmo.map(item).join('')}`:''}${outros.length?`<div class="grupo-escolha">Outros fornecedores</div>${outros.map(item).join('')}`:''}${!cand.length?'<div class="vazio">Nenhum adiantamento em aberto.</div>':''}</div>
+   <div class="rodape-modal"><button class="btn" data-cancelar>Cancelar</button><button class="btn pri">Continuar</button></div>`,
+   async fd=>{ const aid=Number(fd.get('ad')); if(!aid){toast('Escolha o adiantamento.',true);return false;}
+     $('#modal').close(); fecharGaveta(); dialogVincular(S.ads.find(a=>a.id===aid), n.id); return false; });
+}
+
+/* ================= Detalhe do adiantamento ================= */
+function fecharGaveta(){ $('#gaveta').innerHTML=''; }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('#modal').open) fecharGaveta(); });
+function gaveta(html){
+  $('#gaveta').innerHTML=`<div class="veu"></div><div class="gaveta" role="dialog" aria-modal="true">${html}</div>`;
+  $('#gaveta .veu').onclick=fecharGaveta; $('#gaveta .fechar').onclick=fecharGaveta;
+}
+const CAMPOS = {
+  adiantamentos:{data_pagamento:['Data do pagamento','data'],valor:['Valor pago','moeda'],fornecedor_id:['Fornecedor','forn'],unidade_id:['Unidade','uni'],
+    forma_pagamento:['Forma de pagamento'],referencia:['Referência'],descricao:['Finalidade'],produtos:['Produtos'],observacoes:['Observações']},
+  notas_fiscais:{numero:['Número'],serie:['Série'],chave:['Chave de acesso'],data_emissao:['Emissão','data'],data_recebimento:['Recebimento','data'],
+    valor:['Valor da NF','moeda'],fornecedor_id:['Fornecedor','forn'],unidade_id:['Unidade','uni'],observacoes:['Observações']}
+};
+function fmtCampo(v,tipo){
+  if (v===null || v===undefined || v==='') return '(vazio)';
+  if (tipo==='moeda') return brl(v);
+  if (tipo==='data') return dt(v);
+  if (tipo==='forn') return S.fornecedores.find(f=>f.id===Number(v))?.nome || ('#'+v);
+  if (tipo==='uni') return S.unidades.find(u=>u.id===Number(v))?.nome || ('#'+v);
+  return String(v);
+}
+// devolve {titulo, detalhes[]} ou null
+function descreverAcao(h, ctx={}){
+  const d=h.depois||{}, a=h.antes||{};
+  const nf = id => ctx.notas?.[id] ? 'NF '+ctx.notas[id] : 'NF';
+  const ad = id => ctx.ads?.[id] || 'adiantamento';
+  const sitAd={encerrado:'Encerrado com justificativa',cancelado:'Cancelado',conferencia:'Enviado para conferência manual',ativo:'Reaberto / conferência concluída'};
+  const sitNf={cancelada:'NF cancelada',saldo_justificado:'Saldo da NF justificado',sem_adiantamento:'NF marcada como sem adiantamento',ativa:'NF voltou para pendente'};
+  if (h.tabela==='adiantamentos'){
+    if (h.acao==='criacao') return {titulo:`Adiantamento lançado: ${brl(d.valor)}`, detalhes:[d.descricao?`Finalidade: ${esc(d.descricao)}`:null].filter(Boolean)};
+    if (h.acao==='exclusao') return {titulo:'Adiantamento excluído', detalhes:[]};
+    if (h.acao.startsWith('situacao:')) return {titulo:sitAd[d.situacao]||'Situação alterada', detalhes:d.motivo_situacao?[`Motivo: ${esc(d.motivo_situacao)}`]:[]};
+  }
+  if (h.tabela==='notas_fiscais'){
+    if (h.acao==='criacao') return {titulo:`NF ${esc(d.numero)} registrada: ${brl(d.valor)}`, detalhes:[]};
+    if (h.acao==='exclusao') return {titulo:`NF ${esc(a.numero)} excluída`, detalhes:[]};
+    if (h.acao.startsWith('situacao:')) return {titulo:sitNf[d.situacao]||'Situação da NF alterada', detalhes:d.motivo_situacao?[`Motivo: ${esc(d.motivo_situacao)}`]:[]};
+  }
+  if (h.tabela==='vinculos'){
+    if (h.acao==='vinculacao') return {titulo: ctx.lado==='nota' ? `Baixa no ${esc(ad(d.adiantamento_id))}: ${brl(d.valor)}` : `Baixa com a ${esc(nf(d.nota_id))}: ${brl(d.valor)}`,
+                                       detalhes:d.justificativa?[`Justificativa: ${esc(d.justificativa)}`]:[]};
+    if (h.acao==='desvinculacao') return {titulo: ctx.lado==='nota' ? `Desvinculada do ${esc(ad(d.adiantamento_id))} (${brl(a.valor)})` : `${esc(nf(d.nota_id))} desvinculada (${brl(a.valor)})`,
+                                          detalhes:[`Motivo: ${esc(d.motivo_desvinculo)}`]};
+  }
+  if (h.tabela==='devolucoes'){
+    if (h.acao==='criacao') return {titulo:`Devolução registrada: ${brl(d.valor)}`, detalhes:[d.forma?`Forma: ${esc(d.forma)}`:null, d.observacao?esc(d.observacao):null].filter(Boolean)};
+    if (h.acao==='estorno') return {titulo:`Devolução estornada (${brl(a.valor)})`, detalhes:[`Motivo: ${esc(d.motivo_estorno)}`]};
+  }
+  if (h.acao==='alteracao' && CAMPOS[h.tabela]){
+    const mud=Object.entries(CAMPOS[h.tabela]).filter(([k])=>JSON.stringify(a[k]??null)!==JSON.stringify(d[k]??null));
+    if (!mud.length) return null;
+    return {titulo:'Dados editados', detalhes:mud.map(([k,[rot,tipo]])=>`<b>${rot}:</b> <span class="antes">${esc(fmtCampo(a[k],tipo))}</span> → ${esc(fmtCampo(d[k],tipo))}`)};
+  }
+  return null;
+}
+function htmlHistorico(lista, ctx){
+  const itens=(lista||[]).map(h=>{ const r=descreverAcao(h,ctx); if(!r) return '';
+    return `<li><time>${dth(h.momento)}</time><span><span class="quem">${esc(h.usuario_nome||'Sistema')}</span> · ${r.titulo}
+      ${r.detalhes.length?`<ul class="det">${r.detalhes.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</span></li>`; }).join('');
+  return itens || '<li><span class="sub">Sem registros.</span></li>';
+}
+
+async function abrirAdiantamento(id){
+  const a=S.ads.find(x=>x.id===id); if(!a) return;
+  const [vin,dev,hist] = await Promise.all([
+    sb.from('vinculos').select('*, nota:notas_fiscais(id,numero,serie,valor,data_recebimento,unidade_id)').eq('adiantamento_id',id).order('created_at'),
+    sb.from('devolucoes').select('*').eq('adiantamento_id',id).order('created_at'),
+    sb.from('historico').select('*').or(`and(tabela.eq.adiantamentos,registro_id.eq.${id}),depois->>adiantamento_id.eq.${id}`).order('momento',{ascending:false})
+  ]);
+  const aberto=['ativo','conferencia'].includes(a.situacao), g=podeGravar(), c=eCoord();
+  const ctxHist = { lado:'adiantamento', notas:Object.fromEntries((vin.data||[]).map(v=>[v.nota_id, v.nota.numero])) };
+  const histA = hist.data||[];
+  const criou = histA.filter(h=>h.tabela==='adiantamentos' && h.acao==='criacao').pop();
+  const ultima = histA[0];
+  gaveta(`
+   <header><div class="lin"><h3>${esc(a.codigo)}</h3>${tagStatus(a.status)}${tagAlerta(a.alerta)}<button class="fechar" aria-label="Fechar">×</button></div>
+     <div class="sub" style="margin-top:4px">${esc(a.fornecedor_nome)}${a.fornecedor_cnpj?' · '+fmtCnpj(a.fornecedor_cnpj):''} · ${esc(a.unidade_nome)} · pago em ${dt(a.data_pagamento)} (${a.dias_desde_pagamento} dias)</div>
+     <div class="autoria"><span>Lançado por <b>${esc(criou?.usuario_nome||a.responsavel_nome||'—')}</b> em ${dth(criou?.momento||a.created_at)}</span>
+       ${ultima && ultima!==criou?`<span>Última ação: <b>${esc(ultima.usuario_nome||'—')}</b> em ${dth(ultima.momento)}</span>`:''}</div></header>
+   <section>
+    ${a.divergencia?`<div class="aviso roxo">As NFs vinculadas somam ${brl(a.excedente_notas)} a mais do que foi alocado. Confira se essa diferença foi paga por outro meio ou se é cobrança indevida, e registre a justificativa na NF.</div>`:''}
+    ${a.situacao==='encerrado'?`<div class="aviso">Encerrado por justificativa em ${dth(a.situacao_em)}: ${esc(a.motivo_situacao)}. Diferença não documentada: <b>${brl(a.saldo)}</b>.</div>`:''}
+    ${a.situacao==='cancelado'?`<div class="aviso">Cancelado em ${dth(a.situacao_em)}: ${esc(a.motivo_situacao)}</div>`:''}
+    ${a.situacao==='conferencia'?`<div class="aviso roxo">Em conferência manual: ${esc(a.motivo_situacao)}</div>`:''}
+    <div class="bloco">
+      <div class="valores">
+        <div><span>Valor pago</span><b>${brl(a.valor)}</b></div>
+        <div><span>NFs vinculadas</span><b>${brl(a.valor_vinculado)}</b></div>
+        <div><span>Devolvido</span><b>${brl(a.valor_devolvido)}</b></div>
+        <div><span>Saldo a regularizar</span><b style="color:${Number(a.saldo)>0?'var(--atencao)':'var(--ok)'}">${brl(a.saldo)}</b></div>
+      </div>
+      ${regua(a,true)}
+      <div class="legenda"><span class="lv">Documentado por NF</span><span class="ld">Devolvido</span><span class="ls">Saldo a regularizar</span></div>
+    </div>
+    ${g?`<div class="acoes" style="margin-bottom:14px">
+      ${aberto?`<button class="btn pri" id="aBaixa">Dar baixa (NF chegou)</button><button class="btn" id="aDev">Registrar devolução</button>`:''}
+      ${a.situacao==='ativo'?`<button class="btn" id="aConf">Enviar para conferência</button>`:''}
+      ${a.situacao==='conferencia'?`<button class="btn" id="aDesconf">Concluir conferência</button>`:''}
+      ${aberto&&c&&Number(a.saldo)>0&&Number(a.saldo)<Number(a.valor)?`<button class="btn" id="aEnc">Encerrar com justificativa</button>`:''}
+      ${aberto&&c&&Number(a.valor_vinculado)===0&&Number(a.valor_devolvido)===0?`<button class="btn perigo" id="aCanc">Cancelar adiantamento</button>`:''}
+      ${!aberto&&c?`<button class="btn" id="aReab">Reabrir</button>`:''}
+      ${aberto?`<button class="btn" id="aEdit">Editar dados</button>`:''}
+      ${c&&!(vin.data||[]).length&&!(dev.data||[]).length?`<button class="btn perigo" id="aExcl">Excluir</button>`:''}
+    </div>`:''}
+    <div class="bloco"><h2>Notas fiscais vinculadas</h2>
+      ${(vin.data||[]).length?`<table><thead><tr><th>NF</th><th>Recebida</th><th class="num">Valor da NF</th><th class="num">Vinculado aqui</th><th></th></tr></thead><tbody>
+      ${vin.data.map(v=>`<tr class="${v.ativo?'':'riscado'}"><td><b>${esc(v.nota.numero)}</b>${v.nota.serie?' / '+esc(v.nota.serie):''}${v.justificativa?`<div class="sub">${esc(v.justificativa)}</div>`:''}</td>
+        <td>${dt(v.nota.data_recebimento)}</td><td class="num">${brl(v.nota.valor)}</td><td class="num">${brl(v.valor)}</td>
+        <td class="num motivo">${v.ativo ? (c&&aberto?`<button class="btn mini perigo" data-desv="${v.id}">Desvincular</button>`:'') : `<span class="sub">Desvinculado: ${esc(v.motivo_desvinculo)}</span>`}</td></tr>`).join('')}
+      </tbody></table>`:'<p class="sub" style="margin:0">Nenhuma NF vinculada ainda.</p>'}
+    </div>
+    ${(dev.data||[]).length?`<div class="bloco"><h2>Devoluções do fornecedor</h2><table><thead><tr><th>Data</th><th>Forma</th><th class="num">Valor</th><th></th></tr></thead><tbody>
+      ${dev.data.map(d=>`<tr class="${d.ativo?'':'riscado'}"><td>${dt(d.data)}${d.observacao?`<div class="sub">${esc(d.observacao)}</div>`:''}</td><td>${esc(d.forma||'—')}</td><td class="num">${brl(d.valor)}</td>
+       <td class="num motivo">${d.ativo?(c&&aberto?`<button class="btn mini perigo" data-estorno="${d.id}">Estornar</button>`:''):`<span class="sub">Estornada: ${esc(d.motivo_estorno)}</span>`}</td></tr>`).join('')}
+      </tbody></table></div>`:''}
+    <div class="bloco"><h2>Dados do pagamento</h2><dl class="dados">
+      <dt>Forma</dt><dd>${esc(a.forma_pagamento||'—')}</dd>
+      <dt>Comprovante / ref.</dt><dd>${esc(a.referencia||'—')}</dd>
+      <dt>Finalidade</dt><dd>${esc(a.descricao||'—')}</dd>
+      <dt>Produtos</dt><dd>${esc(a.produtos||'—')}</dd>
+      <dt>Observações</dt><dd>${esc(a.observacoes||'—')}</dd>
+      <dt>Registrado por</dt><dd>${esc(a.responsavel_nome||'—')} em ${dth(a.created_at)}</dd></dl></div>
+    <div class="bloco"><h2>Histórico de alterações</h2><ul class="hist">${htmlHistorico(histA, ctxHist)}</ul></div>
+   </section>`);
+  const on=(sel,fn)=>{const el=$(sel); if(el) el.onclick=fn;};
+  on('#aBaixa',()=>darBaixa(a));
+  on('#aVinc',()=>dialogVincular(a));
+  on('#aNovaNf',()=>formNota({adiantamento:a}));
+  on('#aEdit',()=>formAdiantamento(a));
+  on('#aDev',()=>modal(`<h3>Registrar devolução</h3><p class="desc">Valor que o fornecedor devolveu do ${esc(a.codigo)}. Saldo atual: ${brl(a.saldo)}.</p>
+     <div class="campos"><label class="c">Data <span class="ob">*</span><input type="date" name="data" value="${hoje()}" required></label>
+     <label class="c">Valor (R$) <span class="ob">*</span><input name="valor" inputmode="decimal" value="${fmtInput(a.saldo)}" required></label>
+     <label class="c">Forma<select name="forma"><option></option>${FORMAS.map(x=>`<option>${x}</option>`).join('')}</select></label>
+     <label class="c inteiro">Observação<textarea name="observacao"></textarea></label></div>
+     <div class="rodape-modal"><button class="btn" data-cancelar>Cancelar</button><button class="btn pri">Registrar devolução</button></div>`,
+     async fd=>{ const v=parseValor(fd.get('valor')); if(!(v>0)){toast('Informe o valor devolvido.',true);return false;}
+       await exec(sb.from('devolucoes').insert({adiantamento_id:a.id,data:fd.get('data'),valor:v,forma:fd.get('forma')||null,observacao:fd.get('observacao')||null}),'Devolução registrada.');
+       await carregar(); abrirAdiantamento(a.id); }));
+  const mudarSituacao=(situacao,motivo,ok)=>exec(sb.from('adiantamentos').update({situacao,motivo_situacao:motivo}).eq('id',a.id),ok).then(async()=>{await carregar(); abrirAdiantamento(a.id);});
+  on('#aConf',()=>pedirTexto('Enviar para conferência','O adiantamento fica marcado até alguém concluir a conferência.','O que precisa ser conferido?','Enviar para conferência',t=>mudarSituacao('conferencia',t,'Enviado para conferência.')));
+  on('#aDesconf',()=>mudarSituacao('ativo',null,'Conferência concluída.'));
+  on('#aEnc',()=>pedirTexto(`Encerrar ${esc(a.codigo)} com justificativa`,`O saldo de <b>${brl(a.saldo)}</b> deixa de aparecer como pendência, mas continua registrado como diferença não documentada.`,'Justificativa (ex.: crédito com o fornecedor, desconto concedido)','Encerrar com justificativa',t=>mudarSituacao('encerrado',t,'Adiantamento encerrado.')));
+  on('#aCanc',()=>pedirTexto(`Cancelar ${esc(a.codigo)}`,'Use quando o pagamento não aconteceu ou foi lançado por engano. Se o fornecedor devolveu o dinheiro, prefira "Registrar devolução".','Motivo do cancelamento','Cancelar adiantamento',t=>mudarSituacao('cancelado',t,'Adiantamento cancelado.')));
+  on('#aReab',()=>mudarSituacao('ativo',null,'Adiantamento reaberto.'));
+  on('#aExcl',()=>modal(`<h3>Excluir ${esc(a.codigo)}?</h3><p class="desc">Use só para lançamento de teste ou digitado errado. O registro sai das listas, mas a exclusão fica no histórico do sistema. Essa ação não pode ser desfeita.</p>
+     <div class="rodape-modal"><button class="btn" data-cancelar>Voltar</button><button class="btn pri">Excluir adiantamento</button></div>`,
+     async()=>{ await exec(sb.from('adiantamentos').delete().eq('id',a.id),`${a.codigo} excluído.`); fecharGaveta(); await carregar(); }));
+  document.querySelectorAll('[data-desv]').forEach(b=>b.onclick=()=>pedirTexto('Desvincular NF','O vínculo continua no histórico, riscado, e o saldo volta para o adiantamento e para a NF.','Motivo','Desvincular',
+    async t=>{ await exec(sb.from('vinculos').update({ativo:false,motivo_desvinculo:t}).eq('id',b.dataset.desv),'NF desvinculada.'); await carregar(); abrirAdiantamento(a.id); }));
+  document.querySelectorAll('[data-estorno]').forEach(b=>b.onclick=()=>pedirTexto('Estornar devolução','A devolução continua no histórico, riscada.','Motivo','Estornar devolução',
+    async t=>{ await exec(sb.from('devolucoes').update({ativo:false,motivo_estorno:t}).eq('id',b.dataset.estorno),'Devolução estornada.'); await carregar(); abrirAdiantamento(a.id); }));
+}
+
+/* ================= Detalhe da NF ================= */
+async function abrirNota(id){
+  const n=S.nfs.find(x=>x.id===id); if(!n) return;
+  const [vin, hist] = await Promise.all([
+    sb.from('vinculos').select('*, ad:adiantamentos(id,codigo,valor,data_pagamento)').eq('nota_id',id).order('created_at'),
+    sb.from('historico').select('*').or(`and(tabela.eq.notas_fiscais,registro_id.eq.${id}),depois->>nota_id.eq.${id}`).order('momento',{ascending:false})
+  ]);
+  const ctxHist = { lado:'nota', ads:Object.fromEntries((vin.data||[]).map(v=>[v.adiantamento_id, v.ad.codigo])) };
+  const criouN = (hist.data||[]).filter(h=>h.tabela==='notas_fiscais' && h.acao==='criacao').pop();
+  const g=podeGravar(), c=eCoord(), ativa=n.situacao==='ativa', temVinc=Number(n.valor_vinculado)>0;
+  gaveta(`
+   <header><div class="lin"><h3>NF ${esc(n.numero)}${n.serie?' / '+esc(n.serie):''}</h3>${tagStatus(n.status)}<button class="fechar" aria-label="Fechar">×</button></div>
+     <div class="sub" style="margin-top:4px">${esc(n.fornecedor_nome)}${n.fornecedor_cnpj?' · '+fmtCnpj(n.fornecedor_cnpj):''} · ${esc(n.unidade_nome)} · recebida em ${dt(n.data_recebimento)}</div></header>
+   <section>
+    ${n.motivo_situacao?`<div class="aviso">${esc(n.status)}: ${esc(n.motivo_situacao)}</div>`:''}
+    ${ativa&&temVinc&&Number(n.saldo)>0?`<div class="aviso roxo">${brl(n.saldo)} desta NF não estão vinculados a nenhum adiantamento. Se a NF cobre outro adiantamento, dê baixa nele com o mesmo número de NF. Se não, o coordenador registra a justificativa.</div>`:''}
+    <div class="bloco"><div class="valores">
+      <div><span>Valor da NF</span><b>${brl(n.valor)}</b></div>
+      <div><span>Vinculado</span><b>${brl(n.valor_vinculado)}</b></div>
+      <div><span>Disponível</span><b>${brl(n.saldo)}</b></div></div></div>
+    ${g?`<div class="acoes" style="margin-bottom:14px">
+      ${ativa&&temVinc&&Number(n.saldo)>0&&c?`<button class="btn" id="nJust">Justificar saldo</button>`:''}
+      ${!ativa&&(n.situacao==='sem_adiantamento'||c)?`<button class="btn" id="nReat">Voltar para pendente</button>`:''}
+      ${ativa&&!temVinc&&c?`<button class="btn perigo" id="nCanc">Cancelar NF</button>`:''}
+      ${c&&!(vin.data||[]).length?`<button class="btn perigo" id="nExcl">Excluir</button>`:''}</div>`:''}
+    <div class="bloco"><h2>Adiantamentos vinculados</h2>
+     ${(vin.data||[]).length?`<table><thead><tr><th>Adiantamento</th><th>Pago em</th><th class="num">Vinculado</th><th></th></tr></thead><tbody>
+      ${vin.data.map(v=>`<tr class="${v.ativo?'clic':'riscado'}" ${v.ativo?`data-abre="${v.ad.id}"`:''}><td><b>${esc(v.ad.codigo)}</b></td><td>${dt(v.ad.data_pagamento)}</td><td class="num">${brl(v.valor)}</td>
+       <td class="motivo sub">${v.ativo?'':'Desvinculado: '+esc(v.motivo_desvinculo)}</td></tr>`).join('')}</tbody></table>`:'<p class="sub" style="margin:0">Nenhum vínculo.</p>'}</div>
+    <div class="bloco"><dl class="dados">
+      <dt>Chave de acesso</dt><dd>${esc(n.chave||'—')}</dd><dt>Emissão</dt><dd>${dt(n.data_emissao)}</dd>
+      <dt>Observações</dt><dd>${esc(n.observacoes||'—')}</dd><dt>Registrada por</dt><dd>${esc(criouN?.usuario_nome||'—')} em ${dth(n.created_at)}</dd></dl></div>
+    <div class="bloco"><h2>Histórico de alterações</h2><ul class="hist">${htmlHistorico(hist.data, ctxHist)}</ul></div>
+   </section>`);
+  const on=(sel,fn)=>{const el=$(sel); if(el) el.onclick=fn;};
+  const mudar=(situacao,motivo,ok)=>exec(sb.from('notas_fiscais').update({situacao,motivo_situacao:motivo}).eq('id',n.id),ok).then(async()=>{await carregar(); abrirNota(n.id);});
+  on('#nVinc',()=>dialogVincularDaNota(n));
+  on('#nEdit',()=>formNota({nota:n}));
+  on('#nSem',()=>pedirTexto('NF sem adiantamento','A NF sai da lista de pendências. Use quando ela foi paga normalmente (boleto, prazo).','Como foi paga?','Confirmar',t=>mudar('sem_adiantamento',t,'NF marcada como sem adiantamento.')));
+  on('#nJust',()=>pedirTexto('Justificar saldo da NF',`Os ${brl(n.saldo)} não vinculados deixam de aparecer como divergência.`,'Justificativa (ex.: diferença paga por boleto no BM Web)','Justificar saldo',t=>mudar('saldo_justificado',t,'Saldo justificado.')));
+  on('#nCanc',()=>pedirTexto('Cancelar NF','Use para NF registrada por engano ou cancelada pelo emitente.','Motivo','Cancelar NF',t=>mudar('cancelada',t,'NF cancelada.')));
+  on('#nReat',()=>mudar('ativa',null,'NF voltou para pendente.'));
+  on('#nExcl',()=>modal(`<h3>Excluir NF ${esc(n.numero)}?</h3><p class="desc">Use só para NF de teste ou registrada errado. A exclusão fica no histórico do sistema e não pode ser desfeita.</p>
+     <div class="rodape-modal"><button class="btn" data-cancelar>Voltar</button><button class="btn pri">Excluir NF</button></div>`,
+     async()=>{ await exec(sb.from('notas_fiscais').delete().eq('id',n.id),`NF ${n.numero} excluída.`); fecharGaveta(); await carregar(); }));
+  document.querySelectorAll('[data-abre]').forEach(r=>r.onclick=()=>abrirAdiantamento(Number(r.dataset.abre)));
+}
+
+if (sb){
+  sb.auth.onAuthStateChange((ev)=>{ if(ev==='SIGNED_OUT') mostrarLogin(); });
+  iniciar().catch(e=>{ console.error(e); mostrarLogin('Não foi possível conectar ao banco agora ('+(e?.message||'erro')+'). Verifique a internet e entre novamente.'); });
+} else falhaGeral('Não foi possível carregar a conexão com o banco. Verifique a internet deste computador e se a rede bloqueia os sites cdn.jsdelivr.net e unpkg.com.');
+</script>
+</body>
+</html>
